@@ -1,0 +1,87 @@
+# Example queries and commands to use with the MCP client
+
+# 1. Basic testing commands
+"""
+mcp> list resources
+mcp> list tools
+mcp> list prompts
+"""
+
+# 2. Execute a basic query to list configuration tables
+"""
+mcp> execute execute_query {"query": "SELECT table_name FROM user_tables WHERE table_name LIKE '%CONFIG%'"}
+"""
+
+# 3. Analyze configuration similarity across tenants
+"""
+mcp> execute analyze_configurations {
+    "table_name": "APP_CONFIG",
+    "tenant_column": "COMPANY_ID",
+    "config_columns": ["SETTING_KEY", "SETTING_VALUE"]
+}
+"""
+
+# 4. Find configuration outliers
+"""
+mcp> execute find_deviations {
+    "table_name": "APP_CONFIG",
+    "config_column": "SETTING_VALUE",
+    "threshold": 20
+}
+"""
+
+# 5. Create a configuration usage chart
+"""
+mcp> execute create_chart {
+    "query": "SELECT SETTING_KEY, COUNT(*) as COUNT FROM APP_CONFIG GROUP BY SETTING_KEY",
+    "chart_type": "bar",
+    "x_column": "SETTING_KEY",
+    "y_column": "COUNT",
+    "title": "Configuration Key Usage"
+}
+"""
+
+# 6. Get configuration similarity analysis prompt
+"""
+mcp> prompt config_similarity {"table_name": "APP_CONFIG"}
+"""
+
+# 7. Get configuration outliers analysis prompt
+"""
+mcp> prompt config_outliers {"table_name": "APP_CONFIG"}
+"""
+
+# 8. Get configuration summary prompt
+"""
+mcp> prompt config_summary {"table_name": "APP_CONFIG"}
+"""
+
+# 9. Read a specific configuration table resource
+"""
+mcp> resource oracle://config/app_config
+"""
+
+# 10. Find most common configuration values across all tenants
+"""
+mcp> execute execute_query {
+    "query": "SELECT SETTING_KEY, SETTING_VALUE, COUNT(*) as TENANT_COUNT FROM APP_CONFIG GROUP BY SETTING_KEY, SETTING_VALUE ORDER BY TENANT_COUNT DESC"
+}
+"""
+
+# 11. Create a pie chart of configuration distribution
+"""
+mcp> execute create_chart {
+    "query": "SELECT SETTING_VALUE, COUNT(*) as COUNT FROM APP_CONFIG WHERE SETTING_KEY = 'THEME' GROUP BY SETTING_VALUE",
+    "chart_type": "pie",
+    "x_column": "SETTING_VALUE",
+    "y_column": "COUNT",
+    "title": "Theme Distribution Across Tenants"
+}
+"""
+
+# 12. Find tenants with unique configuration settings
+"""
+mcp> execute execute_query {
+    "query": "SELECT COMPANY_ID, COUNT(DISTINCT SETTING_KEY || SETTING_VALUE) as UNIQUE_SETTINGS FROM APP_CONFIG GROUP BY COMPANY_ID HAVING COUNT(DISTINCT SETTING_KEY || SETTING_VALUE) > (SELECT AVG(UNIQUE_COUNT) FROM (SELECT COUNT(DISTINCT SETTING_KEY || SETTING_VALUE) as UNIQUE_COUNT FROM APP_CONFIG GROUP BY COMPANY_ID))"
+}
+"""
